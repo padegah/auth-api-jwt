@@ -1,15 +1,86 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
 
 const app = express();
 
 let validTokens = [];
 
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Authentication API",
+            version: "1.0.0",
+            description: "Authentication API using JWT",
+            contact: {
+                name: "padegah",
+                email: "prince.adegah@amalitech.org"
+            },
+            servers: ["http://localhost:3000"]
+        },
+        components: {
+            securitySchemes: {
+                jwt: {
+                    type: "http",
+                    scheme: "bearer",
+                    in: "header",
+                    bearerFormat: "JWT",
+                    description: "Enter apiToken"
+                },
+            }
+        },
+        security: [{
+            jwt: []
+        }],
+    },
+    apis: ["app.js"]
+};
+
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+app.use("/api/api-doc", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+
+/**
+ * @swagger
+ * /api:
+ *  get:
+ *      description: Use to access the default url
+ *      responses:
+ *          '200':
+ *              description: A succesfull response
+ *          '400':
+ *              description: Failure
+ */
+
 app.get("/api", function(req, res) {
-    res.json({
-        message: "Welcome to the API"
-    });
+    // res.json({
+    //     message: "Welcome to the API"
+    // });
+
+    res.send(`
+        <h1>Welcome to Authentication API using JWT</h1>
+        <a href="http://localhost:3000/api/api-doc">Check Documentation here</a>
+    `);
 });
+
+
+/**
+ * @swagger
+ * 
+ * /api/posts:
+ *  post:
+ *      security:
+ *          - jwt: []
+ *      description: Create a new post
+ *      responses:
+ *          '200':
+ *              description: Success
+ *          '400':
+ *              description: Failure
+ */
 
 app.post("/api/posts", verifyToken, function(req, res){
 
@@ -27,11 +98,24 @@ app.post("/api/posts", verifyToken, function(req, res){
             }
         } else {
             res.json({
-                message: "Token expired"
+                message: "Invalid or expired token"
             });
         }
     });
 });
+
+
+/**
+ * @swagger
+ * /api/login:
+ *  post:
+ *      description: Login
+ *      responses:
+ *          '200':
+ *              description: A succesfull login
+ *          '400':
+ *              description: Login failure
+ */
 
 app.post("/api/login", function(req, res){
     const user = {
@@ -49,6 +133,22 @@ app.post("/api/login", function(req, res){
     });
 });
 
+
+
+/**
+ * @swagger
+ * 
+ * /api/logout:
+ *  post:
+ *      security:
+ *          - jwt: []
+ *      description: Logout
+ *      responses:
+ *          '200':
+ *              description: Success
+ *          '400':
+ *              description: Failure
+ */
 
 app.post("/api/logout", verifyToken, function(req, res){
 
@@ -79,11 +179,10 @@ function verifyToken (req, res, next) {
 
     } else {
         res.json({
-            message: "Forbidden"
+            message: "Forbidden, provide token in the header"
         });
     }
-    
-    next();
+
 }
 
 
