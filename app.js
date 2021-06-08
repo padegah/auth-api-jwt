@@ -4,6 +4,7 @@ const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const logger = require('./logger');
 
 const app = express();
 
@@ -25,12 +26,13 @@ const options = {
 
 transporter.sendMail(options, function(err, info) {
     if(err) {
-        console.log(err);
+        logger.error(err);
         return;
     }
 
-    console.log(info.response);
+    logger.info(info.response);
 });
+
 
 let validTokens = [];
 
