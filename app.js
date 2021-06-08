@@ -2,8 +2,34 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
+require('dotenv').config();
+const nodemailer = require('nodemailer');
 
 const app = express();
+
+const transporter = nodemailer.createTransport( {
+    service: "hotmail",
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+const options = {
+    from: process.env.EMAIL,
+    to: "kofipaa@gmail.com",
+    subject: "testing email from authAPI",
+    text: "testing email from authAPI!!"
+};
+
+transporter.sendMail(options, function(err, info) {
+    if(err) {
+        console.log(err);
+        return;
+    }
+
+    console.log(info.response);
+});
 
 let validTokens = [];
 
