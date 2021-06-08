@@ -22,6 +22,7 @@ const options = {
     text: "testing email from authAPI!!"
 };
 
+
 transporter.sendMail(options, function(err, info) {
     if(err) {
         console.log(err);
